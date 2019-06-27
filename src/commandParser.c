@@ -129,7 +129,12 @@ static WiggleIterator ** readMappedIteratorList(int * count, bool * strict) {
 		int width = atoi(needNextToken());
 		iters = readIteratorList(count, strict);
 		for (i = 0; i < *count; i++)
-			iters[i] = SmoothWiggleIterator(iters[i], width);
+			iters[i] = SmoothWiggleIterator(iters[i], width, false);
+	} else if (strcmp(token, "winsum") == 0) {
+		int width = atoi(needNextToken());
+		iters = readIteratorList(count, strict);
+		for (i = 0; i < *count; i++)
+			iters[i] = SmoothWiggleIterator(iters[i], width, true);
 	} else if (strcmp(token, "exp") == 0) {
 		iters = readIteratorList(count, strict);
 		for (i = 0; i < *count; i++)
@@ -393,7 +398,12 @@ static WiggleIterator * readLastIterator() {
 
 static WiggleIterator * readSmooth() {
 	int width = atoi(needNextToken());
-	return SmoothWiggleIterator(readIterator(), width);
+	return SmoothWiggleIterator(readIterator(), width, false);
+}
+
+static WiggleIterator * readWinSum() {
+	int width = atoi(needNextToken());
+	return SmoothWiggleIterator(readIterator(), width, true);
 }
 
 static WiggleIterator * readPow() {
@@ -745,6 +755,8 @@ static WiggleIterator * readIteratorToken(char * token) {
 		return readBGTee();
 	if (strcmp(token, "smooth") == 0)
 		return readSmooth();
+	if (strcmp(token, "winsum") == 0)
+		return readWinSum();
 	if (strcmp(token, "exp") == 0)
 		return readExp();
 	if (strcmp(token, "abs") == 0)

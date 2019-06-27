@@ -1030,6 +1030,7 @@ WiggleIterator * BinningWiggleIterator(WiggleIterator * i, int width) {
 	return newWiggleIterator(data, &BinningWiggleIteratorPop, &BinningWiggleIteratorSeek, i->default_value * width);
 }
 
+
 //////////////////////////////////////////////////////
 // Smooth' operator !
 //////////////////////////////////////////////////////
@@ -1043,6 +1044,7 @@ typedef struct SmoothWiggleIteratorData_st {
 	int last_position;
 	int count;
 	int width;
+	bool winsum;
 } SmoothWiggleIteratorData;
 
 static double smoothWiggleIteratorRecomputeSum(SmoothWiggleIteratorData * data) {
@@ -1123,7 +1125,7 @@ static void SmoothWiggleIteratorPop(WiggleIterator * wi) {
 	// Step by one
 	wi->finish = wi->start + 1;
 	smoothWiggleIteratorReadOne(wi->chrom, wi->start + data->width/2, data);
-	wi->value = data->sum / data->width;
+	wi->value = data->sum / (data->winsum ? 1 : data->width);
 
 	// Discard unecessary value from buffer
 	if (data->count == data->width || data->last_position < wi->start + data->width/2)
@@ -1144,7 +1146,7 @@ void SmoothWiggleIteratorSeek(WiggleIterator * wi, const char * chrom, int start
 	pop(wi);
 }
 
-WiggleIterator * SmoothWiggleIterator(WiggleIterator * i, int width) {
+WiggleIterator * SmoothWiggleIterator(WiggleIterator * i, int width, bool winsum) {
 	SmoothWiggleIteratorData * data = (SmoothWiggleIteratorData *) calloc(1, sizeof(SmoothWiggleIteratorData));
 	if (width < 2) {
 		fprintf(stderr, "Cannot smooth over a window of width %i, must be 2 or more\n", width);
@@ -1153,6 +1155,24 @@ WiggleIterator * SmoothWiggleIterator(WiggleIterator * i, int width) {
 	data->iter = NonOverlappingWiggleIterator(i);
 	data->buffer = (double*) calloc(sizeof(double), width);
 	data->width = width;
+	data->winsum = winsum;
+	return newWiggleIterator(data, &SmoothWiggleIteratorPop, &SmoothWiggleIteratorSeek, i->default_value);
+}
+
+//////////////////////////////////////////////////////
+// Window sum operator
+//////////////////////////////////////////////////////
+
+WiggleIterator * WinSumIterator(WiggleIterator * i, int width) {
+	SmoothWiggleIteratorData * data = (SmoothWiggleIteratorData *) calloc(1, sizeof(SmoothWiggleIteratorData));
+	if (width < 2) {
+		fprintf(stderr, "Cannot smooth over a window of width %i, must be 2 or more\n", width);
+		exit(1);
+	}
+	int new_width = width % 2 == 1 ? width : width + 1;
+	data->iter = NonOverlappingWiggleIterator(i);
+	data->buffer = (double*) calloc(sizeof(double), new_width);
+	data->width = new_width;
 	return newWiggleIterator(data, &SmoothWiggleIteratorPop, &SmoothWiggleIteratorSeek, i->default_value);
 }
 

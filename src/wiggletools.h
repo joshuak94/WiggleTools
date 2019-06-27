@@ -72,7 +72,7 @@ WiggleIterator * LogWiggleIterator (WiggleIterator * , double);
 WiggleIterator * ExpWiggleIterator (WiggleIterator *, double);
 WiggleIterator * DefaultValueWiggleIterator(WiggleIterator *, double);
 WiggleIterator * HighPassFilterWiggleIterator(WiggleIterator *, double);
-WiggleIterator * SmoothWiggleIterator(WiggleIterator * i, int);
+WiggleIterator * SmoothWiggleIterator(WiggleIterator * i, int, bool);
 WiggleIterator * BinningWiggleIterator(WiggleIterator * i, int);
 WiggleIterator * ExtendWiggleIterator(WiggleIterator * i, int);
 
