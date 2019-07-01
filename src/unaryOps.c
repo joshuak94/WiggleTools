@@ -680,6 +680,31 @@ WiggleIterator * ScaleWiggleIterator(WiggleIterator * i, double s) {
 }
 
 //////////////////////////////////////////////////////
+// Const operator
+//////////////////////////////////////////////////////
+
+void ConstWiggleIteratorPop(WiggleIterator * wi) {
+	ScaleWiggleIteratorData * data = (ScaleWiggleIteratorData *) wi->data;
+	WiggleIterator * iter = data->iter;
+	if (!iter->done) {
+		wi->chrom = iter->chrom;
+		wi->start = iter->start;
+		wi->finish = iter->finish;
+		wi->value = data->scalar;
+		pop(data->iter);
+	} else {
+		wi->done = true;
+	}
+}
+
+WiggleIterator * ConstWiggleIterator(WiggleIterator * i, double s) {
+	ScaleWiggleIteratorData * data = (ScaleWiggleIteratorData *) calloc(1, sizeof(ScaleWiggleIteratorData));
+	data->iter = NonOverlappingWiggleIterator(i);
+	data->scalar = s;
+	return newWiggleIterator(data, &ConstWiggleIteratorPop, &ScaleWiggleIteratorSeek, s);
+}
+
+//////////////////////////////////////////////////////
 // ShiftPos operator
 //////////////////////////////////////////////////////
 

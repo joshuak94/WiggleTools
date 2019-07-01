@@ -65,6 +65,7 @@ WiggleIterator * Floor(WiggleIterator *);
 WiggleIterator * ToInt(WiggleIterator *);
 	// Scalar operations
 WiggleIterator * ScaleWiggleIterator (WiggleIterator *, double);
+WiggleIterator * ConstWiggleIterator (WiggleIterator *, double);
 WiggleIterator * ShiftWiggleIterator(WiggleIterator *, double);
 WiggleIterator * ShiftPosIterator(WiggleIterator *, double);
 WiggleIterator * PowerWiggleIterator (WiggleIterator *, double);

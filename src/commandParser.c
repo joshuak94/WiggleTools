@@ -46,7 +46,7 @@ puts("");
 puts("Program grammar:");
 puts("\tprogram = (iterator) | do (iterator) | (extraction) | (statistic) | run (file)");
 puts("\titerator = (in_filename) | (unary_operator) (iterator) | (binary_operator) (iterator) (iterator) | (reducer) (multiplex) | (setComparison) (multiplex_list) | print (output) (statistic)");
-puts("\tunary_operator = unit | coverage | write (output) | write_bg (ouput) | smooth (int) | abs | exp | ln | log (float) | pow (float) | offset (float) | shiftPos (int) | scale (float) | gt (float) | lt (float) | default (float) | isZero | toInt | floor | extend (int) | bin (int) | (statistic)");
+puts("\tunary_operator = unit | coverage | write (output) | write_bg (ouput) | smooth (int) | abs | exp | ln | log (float) | pow (float) | offset (float) | shiftPos (int) | scale (float) | const (float) | gt (float) | lt (float) | default (float) | isZero | toInt | floor | extend (int) | bin (int) | (statistic)");
 puts("\toutput = (out_filename) | -");
 puts("\tin_filename = *.wig | *.bw | *.bed | *.bb | *.bg | *.bam | *.cram | *.vcf | *.bcf");
 puts("\tstatistic = (statistic_function) (iterator) | ndpearson (multiplex) (multiplex)");
@@ -167,6 +167,11 @@ static WiggleIterator ** readMappedIteratorList(int * count, bool * strict) {
 		iters = readIteratorList(count, strict);
 		for (i = 0; i < *count; i++)
 			iters[i] = ScaleWiggleIterator(iters[i], scalar);
+	} else if (strcmp(token, "const") == 0) {
+		double scalar = atof(needNextToken());
+		iters = readIteratorList(count, strict);
+		for (i = 0; i < *count; i++)
+			iters[i] = ConstWiggleIterator(iters[i], scalar);
 	} else if (strcmp(token, "offset") == 0) {
 		double scalar = atof(needNextToken());
 		iters = readIteratorList(count, strict);
@@ -455,6 +460,11 @@ static WiggleIterator * readScale() {
 	return ScaleWiggleIterator(readIterator(), scalar);
 }
 
+static WiggleIterator * readConst() {
+	double scalar = atof(needNextToken());
+	return ConstWiggleIterator(readIterator(), scalar);
+}
+
 static WiggleIterator * readShift() {
 	double scalar = atof(needNextToken());
 	return ShiftWiggleIterator(readIterator(), scalar);
@@ -697,6 +707,8 @@ static WiggleIterator * readIteratorToken(char * token) {
 		return readCat();
 	if (strcmp(token, "scale") == 0)
 		return readScale();
+	if (strcmp(token, "const") == 0)
+		return readConst();
 	if (strcmp(token, "offset") == 0)
 		return readShift();
 	if (strcmp(token, "shiftPos") == 0)

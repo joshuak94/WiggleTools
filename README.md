@@ -222,7 +222,15 @@ wiggletools log 10 test/fixedStep.bw
 Returns an iterator's output multiplied by a scalar (i.e. decimal number):
 
 ```
-wiggletools scale 10 test/fixedStep.bw 
+wiggletools scale 10 test/fixedStep.bw
+```
+
+* const
+
+Returns an iterator with all values (including 0's and NaNs) replaced by a scalar:
+
+```
+wiggletools const 3 test/variableStep.bw
 ```
 
 * offset
